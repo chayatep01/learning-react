@@ -3,16 +3,21 @@ import Header from './Header'
 import AddOption from './AddOption'
 import Action from './Action'
 import Options from './Options'
+import OptionModal from './OptionModal'
 
 export default class IndecisionApp extends React.Component {
+
+
     constructor(props){
         super(props)
         this.deleteOptions = this.deleteOptions.bind(this)
         this.deleteoption = this.deleteoption.bind(this)
         this.pickOption = this.pickOption.bind(this)
         this.addOption =  this.addOption.bind(this)
+        this.clearSelected = this.clearSelected.bind(this)
         this.state = {
-           options : []
+           options : [] ,
+           selectedOption : undefined
         }
     }
     
@@ -37,12 +42,23 @@ export default class IndecisionApp extends React.Component {
             localStorage.setItem('options',json)
         }
     }
+
+    componentWillMount(){
+        console.log('componentwillmount')
+    }
     
-    deleteOptions() {
+    deleteOptions (){
         this.setState(()=> ({options : []}) )
     } 
 
-    deleteoption(optionToRemove) {
+    clearSelected  ()  {
+         this.setState(()=> ({ selectedOption: undefined }) )
+     } 
+    // clearSelected  () {
+    //     this.setState(() =>({ selectedOption:undefined }) )
+    // }
+
+    deleteoption (optionToRemove) {
             this.setState((prevState)=> ({
                 options : prevState.options.filter((option)=> {
                     return optionToRemove != option
@@ -50,7 +66,7 @@ export default class IndecisionApp extends React.Component {
             }))
     }
     
-    addOption(option){
+    addOption (option) {
         if(!option){
             return 'Enter valid option'
         } else if (this.state.options.indexOf(option) > -1) {
@@ -65,31 +81,49 @@ export default class IndecisionApp extends React.Component {
         
     }
     
-    pickOption() {
+    pickOption  () {
         const randomNum = Math.floor(Math.random()*this.state.options.length)
         const option = this.state.options[randomNum]
-        alert(option)
+        this.setState(()=>({
+                selectedOption : option
+            })
+        )
     }
 
     render() {
         const title = 'IndecisionApp'
         const subtitle = 'Let computer control your life .'
         return(
+
+        
         <div>
-            <Header title = {title} subtitle={subtitle} />
-            <Action 
-              hasOptions = {this.state.options.length > 0 }
-              pickOption = {this.pickOption}
-              />
-            <Options 
-              options = {this.state.options}
-              deleteOptions = {this.deleteOptions}
-              deleteoption = {this.deleteoption}
-              />
-            <AddOption 
-              addOption={this.addOption}
+            
+                <Header title = {title} subtitle={subtitle} />
+                <div className="container">
+                <Action 
+                hasOptions = {this.state.options.length > 0 }
+                pickOption = {this.pickOption}
+                />
+                <div className="widget">
+                <Options 
+                options = {this.state.options}
+                deleteOptions = {this.deleteOptions}
+                deleteoption = {this.deleteoption}
+                />
+                
+                <AddOption 
+                addOption={this.addOption}
+                />
+                </div>
+            </div>
+            
+            <OptionModal 
+               selectedOption = {this.state.selectedOption}
+               clearSelected = {this.clearSelected}
+               
             />
         </div>
         )
     }
+   
 }
